@@ -1,7 +1,8 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const dbConfig = require('./config/database.config');
-
+const mongoose = require ('mongoose')
+// const dbConfig = require('./config/database.config');
+require ('dotenv').config()
 const app = express();
 
 // parse requests of content-type - application/x-www-form-urlencoded
@@ -18,6 +19,21 @@ app.get('/', (req, res) => {
 require('./app/routes/article.routes')(app);
 
 // listen for requests
-app.listen(3000, () => {
+const connection = async () => {
+    try {
+      const connect = await mongoose.connect(process.env.DB_CONNECTION, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+        useFindAndModify: false,
+      });
+      console.log('Connected to DB');
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
+  connection();
+
+const port = process.env.PORT || 3000;
+app.listen(port, () => {
     console.log("Node JS Server running on port 3000");
 });
