@@ -1,6 +1,9 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require ('mongoose')
+const userroutes = require('./app/routes/user.route')
+const articleroutes = require('./app/routes/article.routes')
+jsonwebtoken = require("jsonwebtoken");
 // const dbConfig = require('./config/database.config');
 require ('dotenv').config()
 const app = express();
@@ -16,7 +19,20 @@ app.get('/', (req, res) => {
     res.json({"message": "Welcome to Alice NODE.JS"});
 });
 
-require('./app/routes/article.routes')(app);
+app.use(function(req, res, next) {
+  if (req.headers && req.headers.authorization && req.headers.authorization.split(' ')[0] === 'JWT') {
+    jsonwebtoken.verify(req.headers.authorization.split(' ')[1], 'RESTFULAPIs', function(err, decode) {
+      if (err) req.user = undefined;
+      req.user = decode;
+      next();
+    });
+  } else {
+    req.user = undefined;
+    next();
+  }
+});
+userroutes(app)
+articleroutes(app)
 
 // listen for requests
 const connection = async () => {
