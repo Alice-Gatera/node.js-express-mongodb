@@ -1,11 +1,31 @@
 const mongoose = require('mongoose');
 
 const articleSchema = mongoose.Schema({
-    title: String,
-    snippet: String,
-    body:String
-}, {
-    timestamps: true
+    title: {
+       type: String,
+       required: true,
+    },
+    imageUrl:{
+        type:String,
+        required: true,
+    },
+    snippet:{
+     type: String,
+     required: true,
+    },
+    body:{ 
+        type:String,
+        required: true,
+},
+comments:[{
+    type:mongoose.Schema.Types.ObjectId,
+    ref:"comments",
+    required:true
+}] ,
+    timestamps: {
+        type: Date,
+        default: Date.now()
+    }
 });
 
 module.exports = mongoose.model('articles', articleSchema);

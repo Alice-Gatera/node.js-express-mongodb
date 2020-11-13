@@ -1,13 +1,22 @@
 const express = require('express');
+const app = express();
 const bodyParser = require('body-parser');
 const mongoose = require ('mongoose')
+const mongoDBErrors = require('mongoose-mongodb-errors')
+mongoose.plugin(mongoDBErrors)
+const User = require('./app/models/User.Model')
 const userroutes = require('./app/routes/user.route')
-const articleroutes = require('./app/routes/article.routes')
-jsonwebtoken = require("jsonwebtoken");
-// const dbConfig = require('./config/database.config');
-require ('dotenv').config()
-const app = express();
+const articleroutes = require('./app/routes/article.routes');
+const fileUpload = require('express-fileupload');
+app.use (fileUpload({ useTempFiles:true}))
+ const jsonwebtoken = require("jsonwebtoken");
 
+// const dbConfig = require('./config/database.config');
+ const dotenv = require ('dotenv').config()
+ 
+//  const error =require('express-async-errors')
+
+const util = require ('util')
 // parse requests of content-type - application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: true }))
 
@@ -31,25 +40,34 @@ app.use(function(req, res, next) {
     next();
   }
 });
-userroutes(app)
-articleroutes(app)
+// const userroutes = require('./app/routes/user.route')
+userroutes(app);
+articleroutes(app);
+
+//upload images on blog
+app.use(fileUpload({
+  useTempFiles:true,
+}))
 
 // listen for requests
 const connection = async () => {
+  console.log(process.env.DB_CONNECTION);
     try {
       const connect = await mongoose.connect(process.env.DB_CONNECTION, {
         useNewUrlParser: true,
         useUnifiedTopology: true,
         useFindAndModify: false,
+        useCreateIndex:true
       });
       console.log('Connected to DB');
     } catch (error) {
       console.log(error.message);
     }
   };
-  connection();
+connection();
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
     console.log("Node JS Server running on port 3000");
 });
+module.exports = app;

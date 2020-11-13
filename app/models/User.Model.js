@@ -18,7 +18,7 @@ var UserSchema = new Schema({
     trim: true,
     required: true
   },
-  password: {
+password: {
     type: String
   },
   created: {
@@ -28,7 +28,7 @@ var UserSchema = new Schema({
 });
 
 UserSchema.methods.comparePassword = function(password) {
-  return bcrypt.compareSync(password, this.password);
+  return bcrypt.compareSync(password, this.hash_password);
 };
 
-module.exports = mongoose.model('User', UserSchema);
+module.exports = mongoose.model('users', UserSchema);
