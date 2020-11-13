@@ -5,7 +5,7 @@ const upload = require('./upload')
 const Article = require('../models/articles.model.js');
 const Comment = require('../models/comments.model')
 // const upload=  require('upload')
-const path = require('path')
+const path = require('path');
 
 // Create and Save a new article
 
@@ -35,7 +35,7 @@ exports.create =async (req, res) => {
 
 // Retrieve and return all articles from the database.
 exports.findAll = (req, res) => {
-    Article.find()
+    Article.find().populate('comments')
     .then(articles => {
         res.send({ message: "success",articles
 
@@ -49,7 +49,7 @@ exports.findAll = (req, res) => {
 
 // Find a single article with a id
 exports.findOne = (req, res) => {
-    Article.findById(req.params.articleId)
+    Article.findById(req.params.articleId).populate('comments')
      
     .then(article => {
         if(!article) {
@@ -112,7 +112,7 @@ exports.delete = (req, res) => {
     });
 };
 
-// /Comments
+// /COMMENTS
 
 //Create comments
 exports.createComment = (req, res)=>{
@@ -120,7 +120,7 @@ const articleId = req.params.articleId
     const comment = new Comment({
     name: req.body.name,
     email:req.body.email, 
-    content: req.body.content,
+    body: req.body.body,  
     article :articleId
     })
     // Savecomment in the database
@@ -134,11 +134,13 @@ const articleId = req.params.articleId
     });
     
     //associate article with comment
+    // article.comments.push(comment._id)
+    // await post.save()
+    // res.send(comment)
 }
 
-
 //Read comment
-exports.findOne = (req, res) => {
+exports.getComment = (req, res) => {
 	Article.findById({_id: req.params.articleId}).populate ("comments")
     .then(article => {
         if(!article) {
@@ -156,7 +158,7 @@ exports.findOne = (req, res) => {
 
 //edit a comment
 exports.updateComment = (req, res) => {
-    if(!req.body.name || !req.body.email || !req.body.content) {
+    if(!req.body.name && !req.body.email && !req.body.content) {
         return res.status(400).send({
             message: "Fields can not be empty"
         });
@@ -165,7 +167,7 @@ exports.updateComment = (req, res) => {
    Comment.findByIdAndUpdate(req.params.commentId, {
     name : req.body.name,
     email : req.body.email, 
-    content : req.body.content
+    body: req.body.body
     }, {new: true })
     .then(comment => {
         if(!comment) {
@@ -183,11 +185,21 @@ exports.updateComment = (req, res) => {
 
 // delete comment
 
-exports.delete =(req, res) =>{
+exports.deleteComment =(req, res) =>{
     Comment.findByIdAndRemove(req.params.commentId)
     res.send({message: "comment successifully deleted"})
 
 }
 exports.getArticleComments=(req, res)=>{
-    res.send({message: "work"})
-}
+        Comment.find({article:req.params.articleId})
+        .then(comments => {
+            res.send({ message: "success",comments
+    
+            });
+        }).catch(err => {
+            res.status(500).send({
+                message: err.message || "Something went wrong."
+            });
+        });
+    };
+
