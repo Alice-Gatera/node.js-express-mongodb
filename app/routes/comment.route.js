@@ -1,17 +1,17 @@
-//comment.routes.js
-const comment = require('../controllers/comment.controller.js');
+// //comment.routes.js
+// const comment = require('../controllers/article.controller');
 
-module.exports = (app) => {
+// module.exports = (app) => {
 
-    //create omment
-    app.post ('/:articleId/comment',comment.create)
+//     //create omment
+//     app.post ('/:articleId/comment',comment.create)
     
-    //Read comment
-    app.get('/:articleId/comment', article.findOne)
+//     //Read comment
+//     app.get('/:articleId/comment', article.findOne)
 
-    // edit comment
-    app.put('/comment/:commentId',comment.update)
+//     // edit comment
+//     app.put('/comment/:commentId',comment.update)
     
-    //delete comment
-    app.delete('/comment/:commentID', comment.delete)
-}
+//     //delete comment
+//     app.delete('/comment/:commentID', comment.delete)
+// }

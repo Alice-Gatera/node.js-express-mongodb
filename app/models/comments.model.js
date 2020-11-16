@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const articleModel = require('./articles.model');
+const articleModel = require('../controllers/article.controller');
 
 const commentSchema = mongoose.Schema({
     name: {
@@ -16,7 +16,7 @@ const commentSchema = mongoose.Schema({
 }, 
 article:{
     type:mongoose.Schema.Types.ObjectId,
-    ref:articleModel,
+    ref:'articles',
     required:true
 },
     timestamps:{

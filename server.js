@@ -4,7 +4,6 @@ const bodyParser = require('body-parser');
 const mongoose = require ('mongoose')
 const mongoDBErrors = require('mongoose-mongodb-errors')
 mongoose.plugin(mongoDBErrors)
-const User = require('./app/models/User.Model')
 const userroutes = require('./app/routes/user.route')
 const articleroutes = require('./app/routes/article.routes');
 const fileUpload = require('express-fileupload');
