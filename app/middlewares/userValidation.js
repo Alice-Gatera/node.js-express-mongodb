@@ -1,14 +1,19 @@
-const Joi = require('joi')
+var Joi = require('@hapi/joi')
 
-const registerValidation =(data)=>{
+exports.registerValidation =(req, res, next)=>{
     const userSchema =Joi.object({
         fullName :Joi.string().min(6).required(),
         email:Joi.string().required().email(),
         password:Joi.string().required()
     })
+    const {error} = userSchema.validate(req.body)
+    if(error){
+        return res.status(400).send({error:error.details[0].message})
+    }
+    return next()
 }
- const loginValidation =(data)=>{
-     const userSchema ={
+exports.loginValidation =(req, res, next)=>{
+     const userSchema =Joi.object({
          email: Joi.string()
          .min(6)
          .required()
@@ -17,11 +22,13 @@ const registerValidation =(data)=>{
          password: Joi.string()
          .min(6)
          .required()
+     })
+     const {error} = userSchema.validate(req.body)
+     if(error){
+         return res.status(400).send({error:error.details[0].message})
      }
-     return Joi.validate(data,userSchema)
- }
-module.exports.registerValidation =registerValidation
-module.exports.loginValidation =loginValidation
+     return next()
+    }
 
 
 
