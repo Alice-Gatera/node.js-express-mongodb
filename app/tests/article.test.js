@@ -25,6 +25,21 @@ const token="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1ZmJiOTBhZDZhYWI1Yj
 //Our parent block
 const articleId ="5fc0e5fc44567d26c8e01238"
 describe('Articles',() =>{
+
+//retrieve all articles
+it("FINDALL/should get all articles",(done)=>{
+    chai
+    .request(server)
+    .get(`/article/`)
+    .end((err,res)=>{
+        if (err) done(err)
+        res.should.have.status(200)
+        res.body.should.be.a('object')
+        done()
+    })
+})
+
+    //create  an article
     it('POST/article should Post an article', (done)=>{
         chai.request(server)
         .post('/article')
@@ -42,6 +57,25 @@ describe('Articles',() =>{
         })
     });
 
+    // prevent posting an empty article
+    it('POST/ should not  Post an  empty article', (done)=>{
+        const article = new Article({})
+        article.save((err,res)=>{
+            chai
+        .request(server)
+        .post('/article')
+        .set('auth-token',token)
+        .send(article)
+        .end((err,res) =>{
+            res.should.have.status(400) 
+            // res.body.should.have.property("message").eql('something went wrong')
+            done()
+
+        })
+        
+        })
+    });
+
     // Get an article :id route to retrieve(by id) route
     it ('Get/article should get  a specific  article by the given id',(done)=>{
         const id ="5fc0e5fc44567d26c8e01238"
@@ -52,33 +86,145 @@ describe('Articles',() =>{
             if (err) done(err)
             res.should.have.status(200)
             res.body.should.be.a('object')
-        
             done()
         })
     })
-    //Test the PUT :id route
-    it ('Put/ article  should  given id',(done)=>{
-        let article = new Article({
-            title: "java ",
-            imageUrl: "wow",
-            snippet:"java basics",
-            body:"programming language"
+    it("should check if the article exist",(done)=>{
+        const articleId ="5fc0e5fc44567d26c8e01239"
+        chai
+        .request(server)
+        .get('/article/' + articleId)
+        .end((err,res)=>{
+            // if (err) done(err)
+            res.should.have.status(404)
+            done(err)
         })
-        article.save((err, article) =>{
-            chai
-            .request(server)
-            .put('/article' + article.id)
-            .set("auth-token", token)
-            .send(article)
-            .end((err,res) =>{
-                res.should.have.status(404)
-                res.body.should.be.a('object')
-                // res.body.should.have.property('imageUrl').eql('wow')
-                done()
-            })
+    })
+    it('Get/article should not get article with any existing id', (done)=>{
+
+        chai.request(server)
+        .get('/article/' + '5fc6a4b179beae1fb4498c')
+        .end((err,res) =>{
+            res.should.have.status(500) 
+            res.body.should.be.a('object')
+            // res.body.should.have.property('message').eql('Something went wrong')
+            done()
+        })
+    })
+
+    //Test the PUT :id route
+    it('Put/article should not update an article with missing data', (done)=>{
+        chai.request(server)
+        .put('/article/' + articleId)
+        .set('auth-token',token)
+        .set('Content-type','multipart/form-data')
+        .attach('imageUrl', fs.readFileSync("./app/images/java.jpg"), 'java.jpg')
+        .end((err,res) =>{
+            res.should.have.status(400) 
+            res.body.should.have.property("message").eql('imageurl cannot be empt')
+            done()
+        })
+    });
+
+    it('Put/article should not update an article without files', (done)=>{
+        chai.request(server)
+        .put('/article/' + articleId)
+        .set('auth-token',token)
+        .field('title', 'Work ')
+        .field('snippet','work hard')
+        .field('body', 'work hard until you feel it')
+        .end((err,res) =>{
+            res.should.have.status(400) 
+            res.body.should.have.property("message").eql('imageurl cannot be empt')
+            done()
+        })
+    });
+
+    it('Put/article should update  article ', (done)=>{
+        chai.request(server)
+        .put('/article/' + articleId)
+        .set('auth-token',token)
+        .field('title', 'Work ')
+        .attach('imageUrl', fs.readFileSync("./app/images/java.jpg"), 'java.jpg')
+        .field('snippet','work hard')
+        .field('body', 'work hard until you feel it')
+        .end((err,res) =>{
+            res.should.have.status(200) 
+            res.body.should.be.a('object')
+            res.body.should.have.property('_id').eql(articleId)
+            done()
+        })
+    })
+
+    it('Put/article should not update article with any existing id', (done)=>{
+        chai.request(server)
+        .put('/article/' + '5fc6a4b179beae1fb4498c89')
+        .set('auth-token',token)
+        .field('title', 'Work ')
+        .attach('imageUrl', fs.readFileSync("./app/images/java.jpg"), 'java.jpg')
+        .field('snippet','work hard')
+        .field('body', 'work hard until you feel it')
+        .end((err,res) =>{
+            res.should.have.status(404) 
+            res.body.should.be.a('object')
+            res.body.should.have.property('message').eql('article does not exist')
+            done()
+        })
+    })
+    
+    })
+
+    it('Put/article should not update article with any existing id', (done)=>{
+
+        chai.request(server)
+        .put('/article/' + '5fc6a4b179beae1fb4498c')
+        .set('auth-token',token)
+        .field('title', 'Work ')
+        .attach('imageUrl', fs.readFileSync("./app/images/java.jpg"), 'java.jpg')
+        .field('snippet','work hard')
+        .field('body', 'work hard until you feel it')
+        .end((err,res) =>{
+            res.should.have.status(500) 
+            res.body.should.be.a('object')
+            res.body.should.have.property('message').eql('Something went wrong')
+            done()
         })
     })
     // Test Delete: id route
+
+    it('Delete/article should not Delete an article with any existing id', (done)=>{
+
+        chai.request(server)
+        .delete('/article/' + '5fc6a4b179beae1fb4498c89')
+        .set('auth-token',token)
+        .field('title', 'Work ')
+        .attach('imageUrl', fs.readFileSync("./app/images/java.jpg"), 'java.jpg')
+        .field('snippet','work hard')
+        .field('body', 'work hard until you feel it')
+        .end((err,res) =>{
+            res.should.have.status(404) 
+            res.body.should.be.a('object')
+            res.body.should.have.property('message').eql('article does not exist')
+            done()
+        })
+    })
+    
+    it('Delete/article should not delete article with any existing id', (done)=>{
+
+        chai.request(server)
+        .delete('/article/' + '5fc6a4b179beae1fb4498c')
+        .set('auth-token',token)
+        .field('title', 'Work ')
+        .attach('imageUrl', fs.readFileSync("./app/images/java.jpg"), 'java.jpg')
+        .field('snippet','work hard')
+        .field('body', 'work hard until you feel it')
+        .end((err,res) =>{
+            res.should.have.status(500) 
+            res.body.should.be.a('object')
+            res.body.should.have.property('message').eql('Something went wrong')
+            done()
+        })
+    })
 
     it('DELETE/article should Delete an article given the id', (done)=>{
         let art = new Article({title:"node",imageUrl:"fantastic",snippet:"node.js",body:"helps to run the javascript code on server"})
@@ -93,6 +239,8 @@ describe('Articles',() =>{
             })
         })
     })
+
+
     it('Should create a comment', (done)=>{
         const articleId ="5fc0e5fc44567d26c8e01238"
         chai
@@ -148,6 +296,4 @@ describe('Articles',() =>{
             done()
         })
     })
-})
- 
-    
+
