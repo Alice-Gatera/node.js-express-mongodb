@@ -19,7 +19,9 @@ var UserSchema = new Schema({
     required: true
   },
 password: {
-    type: String
+    type: String,
+    minlength:[6,'Minimum password length is 6 characters']
+
   },
   created: {
     type: Date,
@@ -28,7 +30,7 @@ password: {
 });
 
 UserSchema.methods.comparePassword = function(password) {
-  return bcrypt.compareSync(password, this.hash_password);
+  // return bcrypt.compareSync(password, this.password);
 };
 
 module.exports = mongoose.model('users', UserSchema);

@@ -21,12 +21,12 @@ let token
 describe('contact route',() =>{
 describe ("/contact", ()=>{
     it("should not create contacts a message without data", (done)=>{
-        let conta = {}
+        let contact = {}
         chai.request(server)
         .post('/contact')
-        .send(conta)
+        .send(contact)
         .end((err,res)=>{
-            res.should.have.status(400)
+            res.should.have.status(500)
             done()
         })
     })

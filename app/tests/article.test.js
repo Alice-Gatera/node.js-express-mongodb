@@ -75,6 +75,24 @@ it("FINDALL/should get all articles",(done)=>{
         
         })
     });
+    it('POST/ should not  Post an aricle without image', (done)=>{
+            chai
+        .request(server)
+        .post('/article')
+        .set('auth-token',token)
+        .set('Content-type','multipart/form-data')
+        .field('title', 'Work ')
+        .field('snippet','work hard')
+        .field('body', 'work hard until you feel it')
+        .end((err,res) =>{
+            res.should.have.status(400) 
+            // res.body.should.have.property("message").eql('something went wrong')
+            done()
+
+        })
+        
+        })
+    });
 
     // Get an article :id route to retrieve(by id) route
     it ('Get/article should get  a specific  article by the given id',(done)=>{
@@ -121,7 +139,7 @@ it("FINDALL/should get all articles",(done)=>{
         .attach('imageUrl', fs.readFileSync("./app/images/java.jpg"), 'java.jpg')
         .end((err,res) =>{
             res.should.have.status(400) 
-            res.body.should.have.property("message").eql('imageurl cannot be empt')
+            // res.body.should.have.property("message").eql('imageurl cannot be empt')
             done()
         })
     });
@@ -172,8 +190,6 @@ it("FINDALL/should get all articles",(done)=>{
         })
     })
     
-    })
-
     it('Put/article should not update article with any existing id', (done)=>{
 
         chai.request(server)
@@ -240,8 +256,10 @@ it("FINDALL/should get all articles",(done)=>{
         })
     })
 
+/////////////////////////////////////////////////////
 
-    it('Should create a comment', (done)=>{
+    
+it('Post/comment Should create a comment', (done)=>{
         const articleId ="5fc0e5fc44567d26c8e01238"
         chai
         .request(server)
@@ -261,36 +279,6 @@ it("FINDALL/should get all articles",(done)=>{
         chai
         .request(server)
         .get('/article/'+articleId+'/comment')
-        .end((err, res)=>{
-            res.body.should.be.a('object')
-            done()
-        })
-    })
-    it("should update  a comment given the id",(done) =>{
-        const commentId ="5fc62f2097dc83382c60f9d9"
-        const comment = new Comment({
-            articleId:"5fc0e5fc44567d26c8e01238",
-            name:"Akimana",
-            email:"akimana@gmail.com",
-            body:" wow"     
-   })
-   comment.save ((err,comment) =>{
-       chai
-       .request(server)
-       .put("/article/comment/"+ commentId)
-       .set("auth-token", token)
-       .send(comment)
-       .end((err,res) =>{
-           res.body.should.be.a("object")
-           done()
-       })
-    })
-})
-   it("should delete a commet of a given id", (done)=>{
-    const commentId ="5fc62f2097dc83382c60f9d9"
-    chai
-        .request(server)
-        .delete('/article/comment/'+ commentId )
         .end((err, res)=>{
             res.body.should.be.a('object')
             done()

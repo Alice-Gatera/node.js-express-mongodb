@@ -9,18 +9,55 @@ const { expect } = require('chai')
 
 // const should = chai.should()
 chai.use(chaiHttp)
-const newUser = {
-    fullName :"Test name",
-    email: 'test@email.com',
-    password:'mypassword'
+const user = {
+    fullName :"KALIZA",
+    email: 'kaliza15@gmail.com',
+    password:'kaliza1'
 }
 describe('Authentication',() =>{
     before((done)=>{
-        // User.remove({},(err)=>{
-            User.create(newUser, (err, user)=>{
-                done()
-            })
-        // })
+        User.deleteOne({email: user.email}).then(()=>{
+            console.log('User deleted');
+            done()
+        }).catch((err)=>{
+            console.log(err);
+
+        })
+    })
+    it('should  register a user',(done)=>{
+        chai.request(server)
+        .post('/auth/register')
+        .send(user)
+        .end((err, res) =>{
+            res.should.have.status(200)
+            res.body.should.be.a('object')
+            res.body.should.have.property('user')
+            done()
+        })
+    })
+    it('should not register a user',(done)=>{
+        chai.request(server)
+        .post('/auth/register')
+        .send({fullName :"KALIZA",
+        password:'alice2020'})
+        .end((err, res) =>{
+            res.should.have.status(400)
+            res.body.should.be.a('object')
+    
+            done()
+        })
+    })
+
+    it('should not users with the same email',(done)=>{
+        chai.request(server)
+        .post('/auth/register')
+        .send(user)
+        .end((err, res) =>{
+            res.should.have.status(400)
+            res.body.should.be.a('object')
+            res.body.should.have.property('message').eql('Email already exists')
+            done()
+        })
     })
     it('should not signup without email',(done)=>{
         chai.request(server)
@@ -47,37 +84,31 @@ describe('Authentication',() =>{
             done()
         })
     })
-    it("should login successfully", (done)=>{
-        const login ={
-            email: newUser.email,
-            password: newUser.password
-        }
-        chai
-        .request(server)
+    
+    it('It should LOGIN a user', (done) => {
+        chai.request(server)
         .post('/auth/signIn')
-        .send(login)
-        .end((err,res) =>{
-            expect(res).to.have.status(200)
+        .send({email: user.email, password: user.password})
+        .end((err, res) => {
+            res.should.have.status(200);
+            res.body.should.be.a('object');
+            res.body.should.have.property('message')
+            res.body.should.have.property('token')
+            token = res.body.token
             done()
         })
     })
-    it("should not login",(done) =>{
-        const login ={
-            email: newUser.email,
-        }
-        chai
-        .request(server)
+    it('It should NOT LOGIN a user', (done) => {
+        chai.request(server)
         .post('/auth/signIn')
-        .send(login)
-        .end((err,res) =>{
-            expect(res).to .have.status(400)
-            done(err)
+        .send({email:user.email, password: user.name})
+        .end((err, res) => {
+            res.should.have.status(400);
+            res.body.should.be.a('object');
+            res.body.should.have.property('message').eql("Email and password are incorrect")
+            done();
+        })
+    })
 
-        })
-    })
-    after(done=>{
-        User.remove({},(err)=>{
-            done()
-        })
-    })
+    
 })
