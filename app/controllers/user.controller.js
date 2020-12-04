@@ -1,49 +1,49 @@
-const mongoose = require('mongoose'),
-  jwt = require('jsonwebtoken'),
-  bcrypt = require('bcrypt'),
-  User = require('../models/User.Model');
 
-  exports.register = function(req, res) {
-    var newUser = new User(req.body);
-    newUser.hash_password = bcrypt.hashSync(req.body.password, 10);
-    newUser.save(function(err, user) {
-      if (err) {
-        return res.status(400).send({
-          message: err
-        });
-      } else {
-        user.hash_password = undefined;
-        return res.json(user);
-      }
-    });
-  };
+var jwt = require('jsonwebtoken')
+var bcrypt = require('bcrypt');
+ const User = require('../models/User.Model')
+
+  exports.register = async (req, res)=> {
+    //Checking if the user is already in database
+    const emailExist = await User.findOne ({email: req.body.email})
+    if(emailExist) return res.status(400).send({message:'Email already exists', user: emailExist})
+    const h = bcrypt.hashSync( req.body.password, 8);
+    // create a new user
+    const user = new User({
+      fullName:req.body.fullName,
+      email:req.body.email,
+      password:h
+    })
+      user.save().then((newUser)=>{
+        res.send({user:newUser})
+      }).catch((err)=>{
+        // console.log("error  ===", req.body, err);
+        res.status(400).send({error:err.message})
+      })
+  }
+    //LOGIN
+    exports.login  = async(req,res) =>{
+      User.findOne({email: req.body.email})
+      .exec()
+      .then(user => {
+          bcrypt.compare(req.body.password, user.password, function(err, result) {
+              if (result) {
+                  const token = jwt.sign({
+                      email: user.email
+                    },process.env.TOKEN_SECRET, { expiresIn: '1h' });
+                  return res.status(200).json({
+                      message: "signed in successfully",
+                      token: token
+                  })
+              }
+              else{
   
-  exports.sign_in = function(req, res) {
-    User.findOne({
-      email: req.body.email
-    }, function(err, user) {
-      if (err) throw err;
-      if (!user || !user.comparePassword(req.body.password)) {
-        return res.status(401).json({ message: 'Authentication failed. Invalid user or password.' });
-      }
-      return res.json({ token: jwt.sign({ email: user.email, fullName: user.fullName, _id: user._id }, 'RESTFULAPIs') });
-    });
-  };
-  
-  exports.loginRequired = function(req, res, next) {
-    if (req.user) {
-      next();
-    } else {
-  
-      return res.status(401).json({ message: 'Unauthorized user!!' });
-    }
-  };
-  exports.profile = function(req, res, next) {
-    if (req.user) {
-      res.send(req.user);
-      next();
-    } 
-    else {
-     return res.status(401).json({ message: 'Invalid token' });
-    }
-  };
+                  return res.status(400).send({message: "Email and password are incorrect"})
+              }
+          });
+      })
+      // .catch( error => {
+      //     res.status(400).send({error: error.message})
+      // });
+
+}

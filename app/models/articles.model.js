@@ -7,7 +7,7 @@ const articleSchema = mongoose.Schema({
     },
     imageUrl:{
         type:String,
-        required: true,
+    
     },
     snippet:{
      type: String,
