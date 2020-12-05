@@ -1,4 +1,5 @@
 
+
 var jwt = require('jsonwebtoken')
 var bcrypt = require('bcrypt');
  const User = require('../models/User.Model')
@@ -7,7 +8,7 @@ var bcrypt = require('bcrypt');
     //Checking if the user is already in database
     const emailExist = await User.findOne ({email: req.body.email})
     if(emailExist) return res.status(400).send({message:'Email already exists', user: emailExist})
-    const h = bcrypt.hashSync( req.body.password, 10);
+    const h = bcrypt.hashSync( req.body.password, 8);
     // create a new user
     const user = new User({
       fullName:req.body.fullName,
@@ -22,11 +23,10 @@ var bcrypt = require('bcrypt');
       })
   }
     //LOGIN
-   exports.login  = async(req,res) =>{
+    exports.login  = async(req,res) =>{
       User.find({email: req.body.email})
       .exec()
       .then(user => {
-       console.log(user)
           bcrypt.compare(req.body.password, user[0].password, function(err, result) {
               if (result) {
                   const token = jwt.sign({
@@ -44,7 +44,7 @@ var bcrypt = require('bcrypt');
           });
       })
       .catch( error => {
-          res.status(400).send(error.message)
+          res.status(400).send({error: error.message})
       });
 
 }
