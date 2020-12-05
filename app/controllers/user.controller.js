@@ -22,12 +22,11 @@ var bcrypt = require('bcrypt');
       })
   }
     //LOGIN
-    exports.login  = async(req,res) =>{
+   exports.login  = async(req,res) =>{
       User.find({email: req.body.email})
       .exec()
       .then(user => {
           bcrypt.compare(req.body.password, user[0].password, function(err, result) {
-
               if (result) {
                   const token = jwt.sign({
                       email: user.email
@@ -43,8 +42,8 @@ var bcrypt = require('bcrypt');
               }
           });
       })
-      // .catch( error => {
-      //     res.status(400).send({error: error.message})
-      // });
+      .catch( error => {
+          res.status(400).send({error: error.message})
+      });
 
 }
