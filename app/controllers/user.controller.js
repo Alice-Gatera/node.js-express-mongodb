@@ -43,7 +43,7 @@ var bcrypt = require('bcrypt');
           });
       })
       .catch( error => {
-          res.status(400).send({error: error})
+          res.status(400).send(error)
       });
 
 }
