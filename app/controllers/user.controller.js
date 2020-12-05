@@ -7,7 +7,7 @@ var bcrypt = require('bcrypt');
     //Checking if the user is already in database
     const emailExist = await User.findOne ({email: req.body.email})
     if(emailExist) return res.status(400).send({message:'Email already exists', user: emailExist})
-    const h = bcrypt.hashSync( req.body.password, 8);
+    const h = bcrypt.hashSync( req.body.password, 10);
     // create a new user
     const user = new User({
       fullName:req.body.fullName,
