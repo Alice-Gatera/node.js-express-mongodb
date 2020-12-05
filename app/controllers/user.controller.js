@@ -23,10 +23,11 @@ var bcrypt = require('bcrypt');
   }
     //LOGIN
     exports.login  = async(req,res) =>{
-      User.findOne({email: req.body.email})
+      User.find({email: req.body.email})
       .exec()
       .then(user => {
-          bcrypt.compare(req.body.password, user.password, function(err, result) {
+          bcrypt.compare(req.body.password, user[0].password, function(err, result) {
+
               if (result) {
                   const token = jwt.sign({
                       email: user.email
