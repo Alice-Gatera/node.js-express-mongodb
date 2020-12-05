@@ -26,6 +26,7 @@ var bcrypt = require('bcrypt');
       User.findOne({email: req.body.email})
       .exec()
       .then(user => {
+       console.log(user)
           bcrypt.compare(req.body.password, user.password, function(err, result) {
               if (result) {
                   const token = jwt.sign({
