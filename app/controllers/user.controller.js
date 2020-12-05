@@ -27,7 +27,7 @@ var bcrypt = require('bcrypt');
       .exec()
       .then(user => {
        console.log(user)
-          bcrypt.compare(req.body.password, user.password, function(err, result) {
+          bcrypt.compare(req.body.password, user[0].password, function(err, result) {
               if (result) {
                   const token = jwt.sign({
                       email: user.email
