@@ -23,7 +23,7 @@ var bcrypt = require('bcrypt');
   }
     //LOGIN
    exports.login  = async(req,res) =>{
-      User.findOne({email: req.body.email})
+      User.find({email: req.body.email})
       .exec()
       .then(user => {
        console.log(user)
